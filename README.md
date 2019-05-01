@@ -29,3 +29,9 @@ pip install -r requirements.txt
 python3 Simpler.py
 ```
 Assuming there are already 23 raw images copied over from raspberry pi, the program should run with no problem. Click through the buttons. After the last step, go to the folder and open detected.jpg for a clearer result.
+
+### Finishing
+Quit virtual environment
+```
+deactivate
+```
