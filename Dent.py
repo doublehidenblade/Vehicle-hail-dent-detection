@@ -50,28 +50,28 @@ class RawImage:
         self.result = None
         self.detectNumber = None
         self.detectarr = []
-    def normalize(self, ds1 = 50,ds2 = 20,t_norm = None):#ds1 equalize disk size;ds2 enhance contrast disk size
+    def crop(self, ds1 = 50,ds2 = 20,t_norm = None):#ds1 equalize disk size;ds2 enhance contrast disk size
         self.rawinput = cv2.imread('stitch.jpg')
         # img = raw.rawinput
         # kernel = morp.disk(ds1)
         # kernel2 = morp.disk(ds2)
         # norm_image = rank.equalize(img, selem=kernel)
         # norm_image = rank.enhance_contrast(norm_image, selem=kernel2)
-        img= cv2.imread('Best.jpg')
+        img= cv2.imread('norm.jpg')
         mask = cv2.imread("mask.jpg")
         mask = cv2.resize(mask, (img.shape[1], img.shape[0]))
         masked = cv2.bitwise_and(img, mask)
-        cv2.imwrite("norm.jpg", masked)
-        self.norm = cv2.imread('norm.jpg')
+        cv2.imwrite("crop.jpg", masked)
+        self.norm = cv2.imread('crop.jpg')
         # show
-        imgshow = Image.open("norm.jpg")
+        imgshow = Image.open("crop.jpg")
         imgshow = imgshow.resize((800, 800), Image.ANTIALIAS)
         imgshow = ImageTk.PhotoImage(imgshow)
         panel.configure(image=imgshow)
         panel.image = imgshow
         # update text
         t_norm.destroy()
-        done = Label(control, text="Normalizing done", foreground="green")
+        done = Label(control, text="Cropping done", foreground="green")
         done.grid(row=2, column=2)
         return
 
@@ -140,15 +140,15 @@ class RawImage:
         done.grid(row=5, column=2)
         return
 
-    def Detection(self,t_detect = None,result = None):
+    def Detection(self,t_detect = None, result = None):
         # process
-        origin = self.rawinput
-        image =skimage.color.rgb2gray(self.clustered)
+        origin = cv2.imread("norm.jpg")
+        image = skimage.color.rgb2gray(self.clustered)
         thresh = threshold_otsu(image)
         bw = closing(image > thresh, square(1))
         bw = clear_border(bw)
         label_image = label(bw)
-        quarter, nickel, dime,halfdollar = 0, 0, 0,0
+        quarter, nickel, dime, halfdollar = 0, 0, 0, 0
         my_color = (0,0,0)
         for region in regionprops(label_image):
             # take regions with large enough areas
@@ -159,10 +159,10 @@ class RawImage:
                 if float(maxc - minc) / float(maxr - minr) > 0.667 and float(maxc - minc) / float(maxr - minr) < 1.5:
                     if region.area > 2.8689e+03:
                         halfdollar += 1
-                        my_color = (255,0,0)
+                        my_color = (255, 0, 0)
                     elif  2.8689e+03>region.area > 1.9561e+03:
                         quarter += 1
-                        my_color = (0, 255 , 0)
+                        my_color = (0, 255, 0)
                     elif 1.9561e+03>region.area > 1.3776e+03:
                         nickel += 1
                         my_color = (0, 0, 255)
@@ -220,7 +220,7 @@ def normalizeforStitch(img, ds1=50, ds2=20, t_norm=None):  # ds1 equalize disk s
     # show
     return norm_image
 
-def stitch(num = 23,mode = 'auto',arr = []):
+def stitch(num = 23,mode = 'auto',arr = [],b_norm = None):
     # process
     background = np.ones([int((num)*1080/4.5),1920],dtype=np.uint8)
     background2 = np.ones([int((num)*1080/4.5),1920],dtype=np.uint8)
@@ -261,14 +261,14 @@ def stitch(num = 23,mode = 'auto',arr = []):
 
 
 
-    cv2.imwrite('stitch.jpg', background)
+    cv2.imwrite('norm.jpg', background2)
     # show
-    imgshow = Image.open("stitch.jpg")
-    cv2.imwrite('Best.jpg',background2)
+    imgshow = Image.open("norm.jpg")
     imgshow = imgshow.resize((800, 800), Image.ANTIALIAS)
     imgshow = ImageTk.PhotoImage(imgshow)
     panel.configure(image=imgshow)
     panel.image = imgshow
     # update text
+    b_norm.destroy()
     done = Label(control, text="Stitching done", foreground="green")
     done.grid(row=1, column=2)

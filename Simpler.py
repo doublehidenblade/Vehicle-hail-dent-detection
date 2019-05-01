@@ -1,13 +1,16 @@
 from Dent import *
 #
-b_stitch = Button(control, text="stitch", command=stitch, activeforeground="blue")
+b_stitch = Button(control, text="stitch and normalize", activeforeground="blue")
+b_norms = Label(control, text="normalize takes about 10s", foreground="blue")
+b_norms.grid(row=1, column=2)
+b_stitch['command'] = lambda text=b_norms: stitch(b_norm = text)
 b_stitch.grid(row=1, column=1)
 
 # update button
-t_norm = Label(control, text="Normalizing takes 10s", foreground="blue")
+t_norm = Label(control, text="crop take less than 1s", foreground="blue")
 t_norm.grid(row=2, column=2)
-b_norm = Button(control, text="normalize", activeforeground="blue")
-b_norm['command'] = lambda text=t_norm: raw.normalize(t_norm = text)
+b_norm = Button(control, text="crop", activeforeground="blue")
+b_norm['command'] = lambda text=t_norm: raw.crop(t_norm = text)
 b_norm.grid(row=2, column=1)
 
 # update button
