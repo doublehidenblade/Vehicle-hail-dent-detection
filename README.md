@@ -7,7 +7,7 @@ You can also skip to the dent detection section and run the software with pre-ta
 This is the GUI installation guide for Raspberry Pi. 
 
 ### Installing
-(If you are our sponsor and have our Rasberry Pi, you don't need to install anything, just skip to running.)
+(If you are our sponsor and have our Rasberry Pi, you don't need to install anything, just skip to running.)<br/>
 Install Python3
 ```
 sudo apt-get install python3-dev libffi-dev libssl-dev -y
