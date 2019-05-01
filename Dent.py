@@ -51,7 +51,7 @@ class RawImage:
         self.detectNumber = None
         self.detectarr = []
     def normalize(self, ds1 = 50,ds2 = 20,t_norm = None):#ds1 equalize disk size;ds2 enhance contrast disk size
-        self.rawinput = cv2.imread('stitch.jpg',cv2.COLOR_BGR2GRAY)
+        self.rawinput = cv2.imread('stitch.jpg')
         # img = raw.rawinput
         # kernel = morp.disk(ds1)
         # kernel2 = morp.disk(ds2)
@@ -83,7 +83,7 @@ class RawImage:
         # Create structure element for extracting horizontal lines through morphology operations
         cols = horizontal.shape[1]
         horizontal_size = int(cols / param)
-        horizontalStructure = cv2.getStructuringElement(cv2.MORPH_RECT, (horizontal_size, 1))
+        horizontalStructure = cv2.getStructuringElement(cv2.MORPH_CROSS, (horizontal_size,2))
         horizontal = cv2.erode(horizontal, horizontalStructure)
         horizontal = cv2.dilate(horizontal, horizontalStructure)
         subtracted = cv2.subtract(bw, horizontal)
@@ -148,21 +148,31 @@ class RawImage:
         bw = closing(image > thresh, square(1))
         bw = clear_border(bw)
         label_image = label(bw)
-        quarter, nickel, dime = 0, 0, 0
+        quarter, nickel, dime,halfdollar = 0, 0, 0,0
+        my_color = (0,0,0)
         for region in regionprops(label_image):
             # take regions with large enough areas
-            if 80000 > region.area >= 1000:
+
+            if 7.8311e+04 > region.area >= 1082:
                 # print("region area: %d" %region.area)
-                if region.area > 50000:
-                    quarter += 1
-                elif region.area > 20000:
-                    nickel += 1
-                elif region.area >= 5000:
-                    dime += 1
-                # draw rectangle around segmented area
                 minr, minc, maxr, maxc = region.bbox
                 if float(maxc - minc) / float(maxr - minr) > 0.667 and float(maxc - minc) / float(maxr - minr) < 1.5:
-                    cv2.rectangle(origin, (minc, minr + (maxr - minr)), (minc + (maxc - minc), minr), (255, 255, 255), 10)
+                    if region.area > 2.8689e+03:
+                        halfdollar += 1
+                        my_color = (255,0,0)
+                    elif  2.8689e+03>region.area > 1.9561e+03:
+                        quarter += 1
+                        my_color = (0, 255 , 0)
+                    elif 1.9561e+03>region.area > 1.3776e+03:
+                        nickel += 1
+                        my_color = (0, 0, 255)
+                    elif 1.3776e+03>region.area >= 1082:
+                        dime += 1
+                        my_color = (204, 51, 255)
+
+                    # draw rectangle around segmented area
+
+                    cv2.rectangle(origin, (minc, minr + (maxr - minr)), (minc + (maxc - minc), minr), my_color, 10)
         self.result = origin
         cv2.imwrite("detected.jpg", origin)
         # show
@@ -171,29 +181,34 @@ class RawImage:
         imgshow = ImageTk.PhotoImage(imgshow)
         panel.configure(image=imgshow)
         panel.image = imgshow
-
         # update text
         t_detect.destroy()
         done = Label(control, text="Detecting done", foreground="green")
         done.grid(row=6, column=2)
         # show result
-        if quarter + nickel + dime <= 5:
+        if halfdollar + quarter + nickel + dime <= 5:
             value = dime * 65 + nickel * 75 + quarter * 100
             condition = "very light"
-        elif quarter + nickel + dime <= 15:
+        elif halfdollar + quarter + nickel + dime <= 15:
             value = dime * 100 + nickel * 125 + quarter * 150
             condition = "light"
-        elif quarter + nickel + dime <= 30:
+        elif halfdollar + quarter + nickel + dime <= 30:
             value = dime * 150 + nickel * 200 + quarter * 225
             condition = "moderate"
         else:
             value = dime * 200 + nickel * 225 + quarter * 225
             condition = "severe"
         result.destroy()
-        result = Label(lower,
-                       text="{} quarter size dents, {} nickel size dents, {} dime size dents. Damage condition is {}.".format(
-                           quarter, nickel, dime, condition), foreground="purple")
-        result.grid()
+        result1 = Label(control, text="{} halfdollar size dents,".format(halfdollar), foreground="blue")
+        result2 = Label(control, text="{} quarter size dents,".format(quarter), foreground="green")
+        result3 = Label(control, text="{} nickel size dents,".format(nickel), foreground="red")
+        result4 = Label(control, text="{} dime size dents,".format(dime), foreground="magenta")
+        result5 = Label(control, text="Damage condition is {}.".format(condition), foreground="black")
+        result1.grid(row=7)
+        result2.grid(row=8)
+        result3.grid(row=9)
+        result4.grid(row=10)
+        result5.grid(row=11)
 raw = RawImage()
 
 
@@ -207,7 +222,8 @@ def normalizeforStitch(img, ds1=50, ds2=20, t_norm=None):  # ds1 equalize disk s
 
 def stitch(num = 23,mode = 'auto',arr = []):
     # process
-    background = np.ones([int(num*1080/4.5),1920],dtype=np.uint8)
+    background = np.ones([int((num)*1080/4.5),1920],dtype=np.uint8)
+    background2 = np.ones([int((num)*1080/4.5),1920],dtype=np.uint8)
     background.fill(255)
     length = len(background)
     image = []
@@ -215,18 +231,19 @@ def stitch(num = 23,mode = 'auto',arr = []):
         image.append(cv2.imread("raw" + str(i)+'.jpg',0))
     sec = int(1080/4.5)
     mid = int(1080/2)
-    file = open('shift.txt', 'r')
-    for line in file.readlines():
-        arr.append(int(line))
-    file.close()
     start = 0
     if mode == 'auto':
         k = 180
         for i in range(0,num):
+            if i == 0:
                 start = i*sec
+            else:
+                start = i*sec-50
                 temp = int(1080*5/12 + 190 - i*(12+i/9))
                 obj = image[i][temp:temp+sec][0:1920]
                 background[start:start+sec]= obj
+                obj2 = normalizeforStitch(img = obj)
+                background2[start:start+sec]= obj2
     if mode == 'manual':
         count = 0
         for i in arr:
@@ -244,9 +261,10 @@ def stitch(num = 23,mode = 'auto',arr = []):
 
 
 
-    img = cv2.imwrite('stitch.jpg', background)
+    cv2.imwrite('stitch.jpg', background)
     # show
     imgshow = Image.open("stitch.jpg")
+    cv2.imwrite('Best.jpg',background2)
     imgshow = imgshow.resize((800, 800), Image.ANTIALIAS)
     imgshow = ImageTk.PhotoImage(imgshow)
     panel.configure(image=imgshow)
