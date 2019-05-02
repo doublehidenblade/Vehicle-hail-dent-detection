@@ -54,7 +54,7 @@ ifconfig wlan0
 The IP address should be something like "192.168.1.10"<br/>
 The MAC address should be something like "fe80::5280:6726:a47d:f38c"
 
-Install [WinSCP](https://winscp.net/eng/index.php)
+Install [WinSCP](https://winscp.net/eng/download.php)
 <br/>
 
 Connect to Raspberry Pi <br/>
