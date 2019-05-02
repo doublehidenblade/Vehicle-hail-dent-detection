@@ -12,7 +12,7 @@ View [sample result](./detected.jpg)
 This is the GUI installation guide for Raspberry Pi. 
 
 ### Installing
-(If you are our sponsor and have our Rasberry Pi, you don't need to install anything, just skip to running.)<br/>
+(If you have our original Rasberry Pi, you don't need to install anything, just skip to running.)<br/>
 Install Python3
 ```
 sudo apt-get install python3-dev libffi-dev libssl-dev -y
