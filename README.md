@@ -45,6 +45,7 @@ Type the following command in Raspberry Pi terminal
 sudo raspi-config
 ```
 Choose 'Interfacing options' and then click on 'P2 SSH' to enable SSH
+<br/>
 Then obtain IP dress:
 Type the following command in Raspberry Pi terminal
 ```
