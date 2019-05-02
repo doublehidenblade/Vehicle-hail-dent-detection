@@ -4,6 +4,7 @@ This is the software part of the hail detection system, and should be used along
 You can also skip to the dent detection section and run the software with pre-taken photos in the folder.
 
 <img src="demo.png" alt="drawing" style="width:200px;"/>
+<br/>
 ## Image acquisition
 This is the GUI installation guide for Raspberry Pi. 
 
