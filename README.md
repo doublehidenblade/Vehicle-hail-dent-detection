@@ -44,7 +44,7 @@ The MAC address should be something like "fe80::5280:6726:a47d:f38c"
 Install WinSCP: https://winscp.net/eng/index.php
 <br/>
 
-Connect to Raspberry Pi
+Connect to Raspberry Pi <br/>
 Host name is the ip address of Raspberry Pi.
 (port number: 22, username: pi, password: me470)
 <br/>
